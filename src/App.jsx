@@ -210,7 +210,7 @@ const App = () => {
     <div className="app-container">
       <h1>Todo App</h1>
       <div className="form-container">
-        <h2>Add New Task</h2>
+      <h2>{editingTask ? 'Edit Task' : 'Add New Task'}</h2>
         <form onSubmit={editingTask ? saveEditedtask : addnewTask}>
           <div className="form-group">
             <label htmlFor="title">Title</label>
