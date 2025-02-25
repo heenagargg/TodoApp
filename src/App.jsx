@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 import "./index.css";
 import { ToastContainer, toast } from 'react-toastify';
+import { handleSuccess } from "./Toast";
 const App = () => {
   const categories = ["Work", "Personal", "Urgent"];
   const [tasks, setTasks] = useState(() => {
@@ -13,7 +14,6 @@ const App = () => {
       return [];
     }
   });
-console.log(new Date().toISOString().split('T')[0])
   const [newTask, setNewTask] = useState({
     id: "",
     title: "",
@@ -53,7 +53,6 @@ console.log(new Date().toISOString().split('T')[0])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    console.log(name, value);
     setNewTask({
       ...newTask,
       [name]: value,
@@ -70,7 +69,8 @@ console.log(new Date().toISOString().split('T')[0])
     };
 
     setTasks([...tasks, taskToAdd]);
-    toast.success("Task Added Successfully")
+    const toastId='add-task'
+    handleSuccess("Task Added Successfully",toastId)
     setNewTask({
       id: "",
       title: "",
@@ -82,7 +82,9 @@ console.log(new Date().toISOString().split('T')[0])
 
   const deleteTask = (id) => {
     setTasks(tasks.filter((task) => task.id !== id));
-    toast.success("Task Deleted Successfully")
+    const toastId="delete-task"
+    handleSuccess("Task Deleted Successfully",toastId)
+    // toast.success("Task Deleted Successfully")
   };
 
   const editTask = (task) => {
@@ -105,7 +107,8 @@ console.log(new Date().toISOString().split('T')[0])
       dueDate: "",
       completed: false,
     });
-    toast.success("Task Edited Successfully")
+    const toastId="edit-task"
+    handleSuccess("Task Edited Successfully",toastId)
   };
   const cancelEdit = () => {
     setEditingTask(null);
