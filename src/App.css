@@ -200,7 +200,11 @@ h4 {
 .overdue{
   border-left: 6px solid var(--tertiary-color);
 }
+.task-drag{
+  /* background-color: var(--primary-color); */
+  background-color: rgba(74, 111, 165, 0.5);
 
+}
 
 .task-header{
   display: flex;
@@ -230,11 +234,19 @@ h4 {
   display: flex;
   gap: 8px;
 }
+.disabled-btn{
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.not-disabled-btn{
+  cursor: pointer;
+}
+
 .edit-btn,.delete-btn{
   padding: 4px 12px;
   border: none;
   border-radius: var(--border-radius);
-  cursor: pointer;
+
   font-size: 14px;
   transition: var(--transition);
 }
@@ -266,6 +278,13 @@ h4 {
   margin-top: 5px;
   margin-left: 5px;
 }
+
+
+
+
+
+
+
 
 @media (max-width:1024px){
   .app-container{
@@ -313,6 +332,9 @@ h4 {
   }
   .form-group label{
     font-size: 16px;
+  }
+  .task-details{
+    flex-direction: column;
   }
 }
 

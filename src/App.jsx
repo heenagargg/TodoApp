@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import "./index.css";
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer, toast } from "react-toastify";
 import { handleSuccess } from "./Toast";
 const App = () => {
   const categories = ["Work", "Personal", "Urgent"];
@@ -53,10 +53,44 @@ const App = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
     setNewTask({
       ...newTask,
       [name]: value,
     });
+
+    setErrors((prevErrors) => {
+      let newErrors = { ...prevErrors };
+      if (name === "title") {
+        newErrors.title = value.trim() === "" ? "Title is required" : "";
+      }
+
+      if (name === "dueDate") {
+        const selectedDate = new Date(value);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const maxDate = new Date("2099-12-31");
+
+        if (selectedDate < today) {
+          newErrors.dueDate = "Due date cannot be in the past";
+        }else if (selectedDate > maxDate) {
+          newErrors.dueDate = "Due date cannot be beyond the year 2999";
+        } else {
+          newErrors.dueDate = "";
+        }
+      }
+
+      return newErrors;
+    });
+  };
+
+  const handleTitleBlur = (e) => {
+    const { value } = e.target;
+
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      title: value.trim() === "" ? "Title is required" : "", // Show error if empty
+    }));
   };
 
   const addnewTask = (e) => {
@@ -69,8 +103,8 @@ const App = () => {
     };
 
     setTasks([...tasks, taskToAdd]);
-    const toastId='add-task'
-    handleSuccess("Task Added Successfully",toastId)
+    toast.dismiss();
+    toast.success("Task Added Successfully");
     setNewTask({
       id: "",
       title: "",
@@ -82,15 +116,14 @@ const App = () => {
 
   const deleteTask = (id) => {
     setTasks(tasks.filter((task) => task.id !== id));
-    const toastId="delete-task"
-    handleSuccess("Task Deleted Successfully",toastId)
-    // toast.success("Task Deleted Successfully")
+    toast.dismiss();
+    toast.success("Task Deleted Successfully");
   };
 
   const editTask = (task) => {
     setEditingTask(task);
     setNewTask({ ...task });
-
+    // setIsButtonDisabled(true)
   };
   const saveEditedtask = (e) => {
     e.preventDefault();
@@ -107,8 +140,8 @@ const App = () => {
       dueDate: "",
       completed: false,
     });
-    const toastId="edit-task"
-    handleSuccess("Task Edited Successfully",toastId)
+    toast.dismiss();
+    toast.success("Task Edited Successfully");
   };
   const cancelEdit = () => {
     setEditingTask(null);
@@ -135,9 +168,9 @@ const App = () => {
     e.preventDefault();
     setDragOverCategory(category);
   };
-  const handleDragOverTask = (e, category) => {
+  const handleDragOverTask = (e, task) => {
     e.preventDefault();
-    setDraggedOverTask(category);
+    setDraggedOverTask(task);
   };
 
   const handleDrop = (e, targetCategory, targetTask = null) => {
@@ -148,6 +181,7 @@ const App = () => {
       let updatedTasks = [...prevTasks];
 
       if (draggedTask.category !== targetCategory) {
+        // console.log(draggedTask.category,targetCategory)
         updatedTasks = updatedTasks.map((task) =>
           task.id === draggedTask.id
             ? { ...task, category: targetCategory }
@@ -210,7 +244,7 @@ const App = () => {
     <div className="app-container">
       <h1>Todo App</h1>
       <div className="form-container">
-      <h2>{editingTask ? 'Edit Task' : 'Add New Task'}</h2>
+        <h2>{editingTask ? "Edit Task" : "Add New Task"}</h2>
         <form onSubmit={editingTask ? saveEditedtask : addnewTask}>
           <div className="form-group">
             <label htmlFor="title">Title</label>
@@ -222,6 +256,7 @@ const App = () => {
               name="title"
               value={newTask.title}
               onChange={handleInputChange}
+              onBlur={handleTitleBlur}
             />
             {errors.title && <p className="error-text">{errors.title}</p>}
           </div>
@@ -246,6 +281,8 @@ const App = () => {
               type="date"
               id="dueDate"
               name="dueDate"
+              max="2099-12-31"
+              onInvalid={(e) => e.preventDefault()}
               value={newTask.dueDate}
               onChange={handleInputChange}
             />
@@ -310,7 +347,7 @@ const App = () => {
                   key={task.id}
                   className={`task-item ${task.completed ? "completed" : ""} ${
                     isOverdue(task.dueDate) ? "overdue" : ""
-                  }`}
+                  } ${draggedTask === task ? "task-drag" : ""}`}
                   draggable
                   onDragStart={() => handleDragStart(task)}
                   onDragOver={(e) => handleDragOverTask(e, task)}
@@ -327,22 +364,28 @@ const App = () => {
                   <div className="task-details">
                     <p className="due-date">
                       Due:{"  "}
-                      {/* {new Date(task.dueDate).toLocaleDateString()} */}
-                      {new Date(task.dueDate).toISOString().split('T')[0]}
+                      {new Date(task.dueDate).toISOString().split("T")[0]}
                       {isOverdue(task.dueDate) && (
                         <span className="overdue-text"> (Overdue)</span>
                       )}
                     </p>
                     <div className="task-actions">
                       <button
-                        className="edit-btn"
+                        className={`edit-btn ${
+                          editingTask ? "disabled-btn" : "not-disabled-btn"
+                        }`}
                         onClick={() => editTask(task)}
+                        // disabled={isButtonDisabled?true:false}
+                        disabled={!editingTask ? false : true}
                       >
                         Edit
                       </button>
                       <button
-                        className="delete-btn"
+                        className={`delete-btn ${
+                          editingTask ? "disabled-btn" : "not-disabled-btn"
+                        }`}
                         onClick={() => deleteTask(task.id)}
+                        disabled={!editingTask ? false : true}
                       >
                         Delete
                       </button>
